@@ -25,16 +25,17 @@ const createLevel = () => {
             });
          }
          if (item === 'c') {
-            mtlLoader.load('textures/Alien/Alien.mtl', (mtlParseResult) => {
+            mtlLoader.load('textures/Gun/gun.mtl', (mtlParseResult) => {
                const objLoader = new THREE.OBJLoader();
                objLoader.setMaterials(mtlParseResult);
-               objLoader.load('textures/Alien/Alien.obj', (root) => {
-                  root.position.x = itemIndex;
-                  root.position.y = 0.75;
-                  root.position.z = rowIndex - 0.15;
+               objLoader.load('textures/Gun/gun.obj', (root) => {
                   root.scale.set(0.025, 0.025, 0.025);
+                  camera.add(root);
+                  root.position.z = -0.18;
+                  root.position.y = -0.16;
+                  root.position.x = 0.09;
+                  root.rotation.y = 3.14;
                   gun = root;
-                  scene.add(root);
                });
             });
          }

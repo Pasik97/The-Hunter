@@ -12,11 +12,16 @@ const init = () => {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+    findplayerStartPosition();
+    camera.position.x = playerStartPosition.x;
+    camera.position.z = playerStartPosition.z;
+    camera.position.y = playerStartPosition.y;
+
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight - 4);
 
     document.body.appendChild(renderer.domElement);
-
+    createLevel();
     for (let i = 0; i < levelElements.length; i++) {
         for (let j = 0; j < levelElements[i].length; j++) {
             for (let k = 0; k < levelElements[i][j].length; k++) {
@@ -25,10 +30,7 @@ const init = () => {
         }
     }
 
-    findplayerStartPosition();
-    camera.position.x = playerStartPosition.x;
-    camera.position.z = playerStartPosition.z;
-    camera.position.y = playerStartPosition.y;
+    scene.add(camera);
 }
 
 const onWindowResize = () => {

@@ -155,12 +155,7 @@ const moveCamera = () => {
             if (!canPlayerMove) {
                camera.translateZ(0.05);
             }
-            gun.position.set(
-               camera.position.x - 1,
-               camera.position.y - 0.5,
-               camera.position.z - 1,
-            )
-            gun.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
             camera.position.y = playerStartPosition.y;
             break;
          case 87: // forward
@@ -176,12 +171,7 @@ const moveCamera = () => {
             if (!canPlayerMove) {
                camera.translateZ(-0.05);
             }
-            gun.position.set(
-               camera.position.x,
-               camera.position.y - 0.5,
-               camera.position.z - 1,
-            )
-            gun.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
             camera.position.y = playerStartPosition.y;
             break;
          case 68: //right
@@ -197,12 +187,7 @@ const moveCamera = () => {
             if (!canPlayerMove) {
                camera.translateX(0.05);
             }
-            gun.position.set(
-               camera.position.x - 1,
-               camera.position.y - 0.5,
-               camera.position.z - 1,
-            )
-            gun.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+
             camera.position.y = playerStartPosition.y;
             break;
          case 65: // left
@@ -220,13 +205,6 @@ const moveCamera = () => {
             }
 
             camera.position.y = playerStartPosition.y;
-
-            gun.position.set(
-               camera.position.x - 1,
-               camera.position.y - 0.5,
-               camera.position.z - 1,
-            )
-            gun.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
             break;
       }
    }
@@ -245,8 +223,5 @@ const mouseMove = () => {
       euler.x = Math.max(- PI_2, Math.min(PI_2, euler.x));
 
       camera.quaternion.setFromEuler(euler);
-
-      gun.quaternion.setFromEuler(euler);
-      gun.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
    }
 }
