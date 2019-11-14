@@ -1,7 +1,8 @@
 let levelElements = [];
 let wallArary = [];
 let alienArary = [];
-let gun;
+let deadAliens = [];
+let gun, target;
 
 const createLevel = () => {
    levelElements = levelStructure.map((row, rowIndex) => row.map((item, itemIndex) => {
@@ -16,11 +17,17 @@ const createLevel = () => {
                   root.position.x = itemIndex;
                   root.position.z = rowIndex;
                   root.scale.set(0.125, 0.125, 0.125);
-                  root.isAlien = true;
+                  root.isAlien = alienArary.length;
+                  root.deadRotation = 0;
                   root.health = 5;
-                  result.push(root);
-                  alienArary.push(root)
-                  scene.add(root);
+                  if(!alienArary.find(item => item.position.x === root.position.x && item.position.z === root.position.z)) {
+                     alienArary.push(root);
+                     scene.add(root);
+                  }
+                  if(alienArary.length === 0) {
+                     alienArary.push(root);
+                     scene.add(root);
+                  }
                });
             });
          }
@@ -36,6 +43,19 @@ const createLevel = () => {
                   root.position.x = 0.09;
                   root.rotation.y = 3.14;
                   gun = root;
+               });
+            });
+
+            mtlLoader.load('textures/Target/ring.mtl', (mtlParseResult) => {
+               const objLoader = new THREE.OBJLoader();
+               objLoader.setMaterials(mtlParseResult);
+               objLoader.load('textures/Target/ring.obj', (root) => {
+                  root.scale.set(0.00005, 0.00005, 0.00005);
+                  camera.add(root);
+                  root.position.z = -0.2;
+                  root.position.y = 0;
+                  root.rotation.x = 1.57;
+                  target = root;
                });
             });
          }
@@ -57,7 +77,7 @@ const createLevel = () => {
             lamp.position.y = 4;
             lamp.position.x = itemIndex;
             lamp.position.z = rowIndex;
-            let light = new THREE.PointLight(0xff0000, 1, 100);
+            let light = new THREE.PointLight(0xffffffff, 1, 1000);
             light.position.set(itemIndex, 5, rowIndex);
             result.push(lamp);
             result.push(light);

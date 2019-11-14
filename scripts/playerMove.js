@@ -2,6 +2,7 @@ let euler = new THREE.Euler(0, 0, 0, 'YXZ');
 let distancesArray = [];
 let collision = { forward: false, backward: false, left: false, rigth: false };
 let pressedKeys = [];
+let mouse = new THREE.Vector2();;
 
 const onKeyDown = () => {
    let found = false;
@@ -69,7 +70,7 @@ const moveAliensOnPlayer = () => {
                }
             }
 
-            if (alienCanMove && Math.abs(camera.position.x - newPositionZ1) > 0.25) {
+            if (alienCanMove && !alienArary[i].dead && Math.abs(camera.position.x - newPositionZ1) > 0.25) {
                alienArary[i].position.x = newPositionX1;
             }
 
@@ -89,7 +90,7 @@ const moveAliensOnPlayer = () => {
                      alienCanMove = false;
                }
             }
-            if (alienCanMove && Math.abs(camera.position.x - newPositionX2) > 0.25)
+            if (alienCanMove && !alienArary[i].dead && Math.abs(camera.position.x - newPositionX2) > 0.25)
                alienArary[i].position.x = newPositionX2;
 
             alienCanMove = true;
@@ -108,7 +109,7 @@ const moveAliensOnPlayer = () => {
                      alienCanMove = false;
                }
             }
-            if (alienCanMove && Math.abs(camera.position.z - newPositionZ1) > 0.25)
+            if (alienCanMove && !alienArary[i].dead && Math.abs(camera.position.z - newPositionZ1) > 0.25)
                alienArary[i].position.z = newPositionZ1;
 
             alienCanMove = true;
@@ -127,15 +128,35 @@ const moveAliensOnPlayer = () => {
                      alienCanMove = false;
                }
             }
-            if (alienCanMove && Math.abs(camera.position.z - newPositionZ2) > 0.25)
+            if (alienCanMove && !alienArary[i].dead && Math.abs(camera.position.z - newPositionZ2) > 0.25)
                alienArary[i].position.z = newPositionZ2;
 
             alienCanMove = true;
          }
       }
 
-      alienArary[i].lookAt(camera.position.x, 0, camera.position.z);
+      if (!alienArary[i].dead) {
+         alienArary[i].lookAt(camera.position.x, 0, camera.position.z);
+      }
    }
+}
+
+const rotateDeadAliens = () => {
+   for (let i = 0; i < deadAliens.length; i++) {
+      if (deadAliens[i].deadRotation < 1.57) {
+         deadAliens[i].rotation.x += 0.01;
+         deadAliens[i].deadRotation += 0.01;
+      }
+   }
+}
+
+const didPlayerLose = () => {
+   for (let i = 0; i < alienArary.length; i++) {
+      if (deadAliens.indexOf(alienArary[i]) < 0 && Math.abs(camera.position.z - alienArary[i].position.z) < 0.27 && Math.abs(camera.position.x - alienArary[i].position.x) < 0.27) {
+         return true;
+      }
+   }
+   return false;
 }
 
 const moveCamera = () => {
@@ -221,7 +242,51 @@ const mouseMove = () => {
       euler.x -= movementY * 0.002;
 
       euler.x = Math.max(- PI_2, Math.min(PI_2, euler.x));
-
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
       camera.quaternion.setFromEuler(euler);
+   }
+}
+
+const play = () => {
+   let sound = new Audio("./sounds/gunShoot.mp3");
+   sound.volume = 0.4;
+
+   if (sound.currentTime) {
+      sound.pause();
+      sound.currentTime = 0;
+   }
+
+   sound.play();
+}
+
+const mouseClick = () => {
+   camera.updateMatrixWorld();
+   if (notClick) {
+      play();
+   }
+
+   var raycaster = new THREE.Raycaster();
+   var mouse = new THREE.Vector2();
+   raycaster.setFromCamera(mouse, camera);
+   let intersects = raycaster.intersectObjects(alienArary, true);
+
+   for (let i = 0; i < intersects.length; i++) {
+      if (intersects[i].object.parent.health && intersects.length === 1) {
+         intersects[i].object.parent.health -= 1;
+      }
+      if (i > 0 && intersects[i].object.parent.health && intersects.length > 1) {
+         if (intersects[i].object.parent === intersects[i - 1].object.parent)
+            intersects[i].object.parent.health -= 1;
+      }
+   }
+
+   for (let i = 0; i < intersects.length; i++) {
+      if (intersects[i].object.parent.health === 0 && deadAliens.indexOf(intersects[i].object.parent) < 0) {
+         let sound = new Audio("./sounds/alienDie.mp3");
+         sound.play();
+         intersects[i].object.parent.dead = true;
+         deadAliens.push(intersects[i].object.parent);
+      }
    }
 }

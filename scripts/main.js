@@ -1,14 +1,19 @@
 let scene, camera, renderer;
 let isGameActive = false;
 let PI_2 = Math.PI / 2;
+let win = false;
+let lose = false;
+let notClick = false;
+let playDieSoundOnce = false;
+let playWinSoundOnce = false;
 
 const init = () => {
     let minLevel = 1;
     let maxLevel = 3;
     let levelNumber = Math.floor(Math.random() * (maxLevel - minLevel)) + minLevel;
-    readLevelFile(`./Level${levelNumber}.txt`);
-    createLevel(); //creating levelElements
-    console.log(levelElements)
+    readLevelFile(`./levels/Level${levelNumber}.txt`);
+    createLevel();
+
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -45,16 +50,25 @@ const startGame = () => {
         document.body.addEventListener('keyup', onKeyUp, false);
         document.body.requestPointerLock();
         document.addEventListener('mousemove', mouseMove, false);
+        document.addEventListener('click', mouseClick, false);
         document.body.requestFullscreen();
     }
 };
 
+const restart = () => {
+    if(event.keyCode === 82) {
+        location.reload();
+    }
+}
+
 const pauseGame = () => {
-    if (!isGameActive) {
+    if (!isGameActive && !win && !lose) {
         isGameActive = true;
+        notClick = true;
     } else {
-        isGameActive = false;
+        document.body.addEventListener('keydown', restart, false);
         document.removeEventListener('mousemove', mouseMove, false);
+        document.removeEventListener('click', mouseClick, false);
         document.body.removeEventListener('keydown', onKeyDown, false);
         document.body.removeEventListener('keyup', onKeyUp, false);
     }
@@ -69,8 +83,25 @@ const animate = () => {
     renderer.render(scene, camera);
 
     if (isGameActive) {
-        //moveAliensOnPlayer();
-        moveCamera();
+        moveAliensOnPlayer();
+        if (!win && !lose)
+            moveCamera();
+        rotateDeadAliens();
+        if (alienArary.length === deadAliens.length && !playWinSoundOnce) {
+            playWinSoundOnce = true;
+            pauseGame();
+            win = true;
+            let sound = new Audio("./sounds/win.mp3");
+            sound.volume = 0.5;
+            sound.play();
+        }
+        if (didPlayerLose() && !playDieSoundOnce) {
+            playDieSoundOnce = true;
+            lose = true;
+            pauseGame();
+            let sound = new Audio("./sounds/playerDie.mp3");
+            sound.play();
+        }
     }
 }
 
