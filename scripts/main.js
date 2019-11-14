@@ -9,7 +9,7 @@ let playWinSoundOnce = false;
 
 const init = () => {
     let minLevel = 1;
-    let maxLevel = 3;
+    let maxLevel = 6;
     let levelNumber = Math.floor(Math.random() * (maxLevel - minLevel)) + minLevel;
     readLevelFile(`./levels/Level${levelNumber}.txt`);
     createLevel();
